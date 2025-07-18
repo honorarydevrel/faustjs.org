@@ -22,6 +22,9 @@ export default function Messages({ messages, className }) {
 			{messages.map((message) => {
 				const isAssistant = message.role === "assistant";
 				const isLoading = message.content === "";
+				const hasReasoning =
+					message.reasoning && message.reasoning.trim() !== "";
+
 				return (
 					<div
 						key={message.id}
@@ -39,14 +42,28 @@ export default function Messages({ messages, className }) {
 								<div className="animate-think h-2 w-2 rounded-full bg-gray-200" />
 							</div>
 						) : (
-							<Markdown
-								remarkPlugins={[remarkGfm]}
-								components={{
-									a: ChatLink,
-								}}
-							>
-								{message.content}
-							</Markdown>
+							<>
+								{hasReasoning && (
+									<details className="mb-3 rounded-lg border border-gray-600 bg-gray-800/50 p-3">
+										<summary className="cursor-pointer text-sm font-medium text-purple-300 hover:text-purple-200">
+											🧠 Thinking Process
+										</summary>
+										<div className="mt-2 text-sm text-gray-300">
+											<pre className="font-mono text-xs whitespace-pre-wrap">
+												{message.reasoning}
+											</pre>
+										</div>
+									</details>
+								)}
+								<Markdown
+									remarkPlugins={[remarkGfm]}
+									components={{
+										a: ChatLink,
+									}}
+								>
+									{message.content}
+								</Markdown>
+							</>
 						)}
 					</div>
 				);

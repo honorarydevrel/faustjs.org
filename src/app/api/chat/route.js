@@ -70,13 +70,39 @@ export async function POST(req) {
 
 		const coreMessages = convertToCoreMessages(messages);
 
+		// Check if thinking mode is enabled
+		const enableThinking = coreMessages.some(
+			(message) =>
+				message.content &&
+				typeof message.content === "string" &&
+				message.content.includes("__THINKING_MODE__"),
+		);
+
+		// Remove the thinking mode marker from messages
+		const cleanMessages = coreMessages.map((message) => ({
+			...message,
+			content:
+				typeof message.content === "string"
+					? message.content.replace("__THINKING_MODE__", "").trim()
+					: message.content,
+		}));
+
 		const response = await streamText({
-			model: vertex("gemini-2.5-flash"),
+			model: vertex(
+				enableThinking ? "gemini-2.5-flash-preview-05-20" : "gemini-2.5-flash",
+			),
 			system: [systemPromptContent, smartSearchPrompt].join("\n"),
-			messages: coreMessages,
+			messages: cleanMessages,
 			tools: {
 				smartSearchTool,
 			},
+			...(enableThinking && {
+				experimental_providerMetadata: {
+					google: {
+						thinkingBudget: 12_000,
+					},
+				},
+			}),
 			onError: (error) => {
 				console.error("Error during streaming:", error);
 				return new Response(ReasonPhrases.INTERNAL_SERVER_ERROR, {
@@ -96,7 +122,9 @@ export async function POST(req) {
 			maxSteps: 5,
 		});
 
-		return response.toDataStreamResponse();
+		return response.toDataStreamResponse({
+			sendReasoning: enableThinking,
+		});
 	} catch (error) {
 		console.error("Error in chat API:", error);
 		return new Response(ReasonPhrases.INTERNAL_SERVER_ERROR, {

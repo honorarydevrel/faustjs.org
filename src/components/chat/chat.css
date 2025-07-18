@@ -25,3 +25,19 @@
 	/* Optional: A slight text shadow can make it pop on some backgrounds */
 	/* text-shadow: 2px 2px 4px rgba(0,0,0,0.1); */
 }
+
+.thinking-indicator {
+	animation: think-pulse 2s ease-in-out infinite;
+}
+
+@keyframes think-pulse {
+	0%,
+	100% {
+		opacity: 0.6;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.05);
+	}
+}
