@@ -65,8 +65,38 @@ const nextConfig = {
 					xssProtection: false,
 				}),
 			},
+			// Explicit Cache-Control headers for ISR pages to prevent conflicts
+			{
+				source: "/blog/:path*",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, s-maxage=3600, stale-while-revalidate=86400",
+					},
+				],
+			},
+			{
+				source: "/docs/:path*",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, s-maxage=600, stale-while-revalidate=3600",
+					},
+				],
+			},
+			{
+				source: "/blog/",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, s-maxage=60, stale-while-revalidate=300",
+					},
+				],
+			},
 		];
 	},
 };
 
-export default withWPEConfig(withFaust(nextConfig));
+export default withWPEConfig(withFaust(nextConfig), {
+	remoteCacheHandler: false,
+});
