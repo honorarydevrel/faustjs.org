@@ -6,6 +6,9 @@ const token = env.NEXT_SEARCH_ACCESS_TOKEN ?? "";
 
 // Field might need to be adjusted to include the correct field for your search index, e.g. "content", "post_title", etc.
 export async function getContext(message) {
+    if (!url || !token) {
+        throw new Error("Search endpoint or access token is not configured. Set NEXT_PUBLIC_SEARCH_ENDPOINT and NEXT_SEARCH_ACCESS_TOKEN environment variables.");
+    }
 	const query = `query GetContext($message: String!) {
     similarity(
       input: {

@@ -1,4 +1,4 @@
-import { hash } from "node:crypto";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { env } from "node:process";
 import { Octokit } from "@octokit/core";
@@ -167,5 +167,8 @@ export async function getParsedDoc(slug) {
  * @returns {string}
  */
 export function generateDocIdFromUri(uri) {
-	return `mdx:${hash("sha-1", uri)}`;
+	// Generate a deterministic SHA-1 hash for the given URI so the same doc
+	// always receives the same id. Using createHash is portable and supported
+	// in all maintained Node versions.
+	return `mdx:${createHash("sha1").update(uri).digest("hex")}`;
 }

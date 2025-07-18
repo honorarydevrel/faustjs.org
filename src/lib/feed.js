@@ -15,6 +15,7 @@ export const FEED_QUERY = gql`
 		}
 		posts(where: { orderby: { field: DATE, order: DESC } }, first: 10) {
 			nodes {
+				id
 				title
 				uri
 				excerpt

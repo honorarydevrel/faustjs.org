@@ -20,7 +20,7 @@ export function classNames(...arguments_) {
 		}
 	}
 
-	return classes;
+	return classes.trim();
 }
 
 export function normalizeHref(path) {
