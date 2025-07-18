@@ -33,10 +33,13 @@ export default function Messages({ messages, className }) {
 						)}
 					>
 						{isLoading ? (
-							<div className="flex items-center justify-center gap-1">
-								<div className="animate-think h-2 w-2 rounded-full bg-gray-200 [animation-delay:-1s]" />
-								<div className="animate-think h-2 w-2 rounded-full bg-gray-200 [animation-delay:-.5s]" />
-								<div className="animate-think h-2 w-2 rounded-full bg-gray-200" />
+							<div className="flex flex-col items-center justify-center gap-2">
+								<span className="gemini-text text-xs tracking-wide uppercase">Thinking…</span>
+								<div className="flex items-center justify-center gap-1">
+									<div className="animate-think h-2 w-2 rounded-full bg-gray-200 [animation-delay:-1s]" />
+									<div className="animate-think h-2 w-2 rounded-full bg-gray-200 [animation-delay:-.5s]" />
+									<div className="animate-think h-2 w-2 rounded-full bg-gray-200" />
+								</div>
 							</div>
 						) : (
 							<Markdown
