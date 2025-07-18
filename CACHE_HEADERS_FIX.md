@@ -6,89 +6,13 @@ Issue [#343](https://github.com/wpengine/faustjs.org/issues/343) reported that I
 
 ## Root Cause Analysis
 
-The issue was caused by conflicts between:
+The issue was caused by **Atlas Next's remote cache handler** interfering with Next.js's built-in ISR caching behavior. The `@wpengine/atlas-next` package includes `@wpengine/edge-cache` which was overriding Next.js's default Cache-Control headers for ISR pages.
 
-1. **Atlas Next Edge Caching**: The `@wpengine/atlas-next` package includes `@wpengine/edge-cache` which was interfering with Next.js's default ISR caching behavior.
+## Simple Solution
 
-2. **Header Configuration Conflicts**: Multiple sources were setting Cache-Control headers, leading to inconsistent behavior.
+### Disable Atlas Next Remote Cache Handler
 
-3. **Missing Explicit Cache Headers**: ISR pages didn't have explicit Cache-Control headers defined, relying on Next.js defaults which were being overridden.
-
-## Solution Implemented
-
-### 1. Explicit Cache-Control Headers in `next.config.mjs`
-
-Added specific Cache-Control headers for different page types:
-
-```javascript
-async headers() {
-  return [
-    // ... existing headers ...
-    {
-      source: "/blog/:path*",
-      headers: [
-        {
-          key: "Cache-Control",
-          value: "public, s-maxage=3600, stale-while-revalidate=86400",
-        },
-      ],
-    },
-    {
-      source: "/docs/:path*",
-      headers: [
-        {
-          key: "Cache-Control",
-          value: "public, s-maxage=600, stale-while-revalidate=3600",
-        },
-      ],
-    },
-    {
-      source: "/blog/",
-      headers: [
-        {
-          key: "Cache-Control",
-          value: "public, s-maxage=60, stale-while-revalidate=300",
-        },
-      ],
-    },
-  ];
-}
-```
-
-### 2. Middleware for Consistent Header Application
-
-Created `middleware.js` to ensure proper Cache-Control headers are applied consistently:
-
-```javascript
-export function middleware(request) {
-  const response = NextResponse.next();
-  const { pathname } = request.nextUrl;
-  
-  if (pathname.startsWith('/blog/') && pathname !== '/blog/') {
-    response.headers.set(
-      'Cache-Control',
-      'public, s-maxage=3600, stale-while-revalidate=86400'
-    );
-  } else if (pathname === '/blog/') {
-    response.headers.set(
-      'Cache-Control',
-      'public, s-maxage=60, stale-while-revalidate=300'
-    );
-  } else if (pathname.startsWith('/docs/')) {
-    response.headers.set(
-      'Cache-Control',
-      'public, s-maxage=600, stale-while-revalidate=3600'
-    );
-  }
-  
-  response.headers.set('Vary', 'Accept-Encoding, Accept-Language');
-  return response;
-}
-```
-
-### 3. Disabled Atlas Next Remote Cache Handler
-
-Updated Atlas Next configuration to prevent conflicts:
+The fix is simple - disable the remote cache handler in Atlas Next configuration:
 
 ```javascript
 export default withWPEConfig(withFaust(nextConfig), {
@@ -96,63 +20,40 @@ export default withWPEConfig(withFaust(nextConfig), {
 });
 ```
 
-## Cache Strategy
+This allows Next.js to handle ISR caching with its built-in mechanisms, which are well-tested and reliable.
 
-| Page Type | Revalidation Period | Cache-Control Header |
-|-----------|-------------------|---------------------|
-| Blog Index (`/blog/`) | 60 seconds | `public, s-maxage=60, stale-while-revalidate=300` |
-| Blog Posts (`/blog/[slug]/`) | 1 hour | `public, s-maxage=3600, stale-while-revalidate=86400` |
-| Docs Pages (`/docs/**`) | 10 minutes | `public, s-maxage=600, stale-while-revalidate=3600` |
+## Why This Works
 
-## Testing
-
-A test script has been created to verify the fix:
-
-```bash
-# Test against local development server
-pnpm test:cache-headers
-
-# Test against production/staging
-BASE_URL=https://your-domain.com pnpm test:cache-headers
-```
-
-The test script checks that:
-- Cache-Control headers are properly set for each page type
-- Headers match the expected values
-- No missing or incorrect headers
-
-## Verification Steps
-
-1. **Deploy the changes**
-2. **Run the test script**: `pnpm test:cache-headers`
-3. **Monitor production logs** for any caching-related errors
-4. **Check browser dev tools** to verify headers are consistent
-5. **Monitor CDN/edge cache behavior** to ensure proper caching
+1. **Next.js ISR is robust**: Next.js has excellent built-in caching for ISR pages
+2. **Atlas Next was interfering**: The remote cache handler was overriding Next.js headers
+3. **Minimal change**: We don't need to reinvent caching - just let Next.js handle it
+4. **No performance impact**: Next.js ISR caching is already optimized
 
 ## Expected Behavior After Fix
 
-- **Consistent Headers**: All ISR pages will have predictable Cache-Control headers
-- **Proper Caching**: Edge caches will respect the defined cache strategies
-- **No Random Behavior**: Headers will be consistent across requests
-- **Performance**: Stale-while-revalidate will provide good performance while ensuring fresh content
+- ✅ **Consistent Headers**: ISR pages will use Next.js default Cache-Control headers
+- ✅ **No Random Behavior**: Headers will be predictable and consistent
+- ✅ **Proper Caching**: Next.js will handle revalidation according to `revalidate` values
+- ✅ **Edge Cache Compatible**: CDNs will still cache properly with Next.js headers
 
-## Rollback Plan
+## Verification
 
-If issues arise, the fix can be rolled back by:
+After deployment, verify that:
+1. ISR pages have consistent Cache-Control headers
+2. No more random caching behavior
+3. Revalidation works as expected (60s for blog index, 1h for posts, 10m for docs)
 
-1. Removing the explicit Cache-Control headers from `next.config.mjs`
-2. Deleting the `middleware.js` file
-3. Reverting the Atlas Next configuration to default
+## Rollback
 
-## Monitoring
+If issues arise, simply remove the `remoteCacheHandler: false` configuration to revert to Atlas Next's default behavior.
 
-Monitor the following metrics after deployment:
+## Alternative Solutions (if needed)
 
-- Cache hit rates
-- Response times
-- Error rates
-- Browser console warnings about caching
-- CDN cache behavior
+If disabling the remote cache handler doesn't work, these are the next steps:
+
+1. **Check Atlas Next version**: Ensure using the latest version
+2. **Contact WP Engine support**: Atlas Next is their package
+3. **Consider removing Atlas Next**: If it's causing more problems than it solves
 
 ## Related Issues
 
