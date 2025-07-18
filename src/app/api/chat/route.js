@@ -77,6 +77,7 @@ export async function POST(req) {
 			tools: {
 				smartSearchTool,
 			},
+			experimental_streamThinking: true,
 			onError: (error) => {
 				console.error("Error during streaming:", error);
 				return new Response(ReasonPhrases.INTERNAL_SERVER_ERROR, {

@@ -8,10 +8,15 @@ export default function Chat({
 	handleMessageSubmit,
 	status,
 	messages,
+	showThinking = true,
 }) {
 	return (
 		<div id="chat" className="flex h-full w-full flex-col gap-4">
-			<Messages messages={messages} className="-mr-2 pr-4 pb-12 md:-mr-4" />
+			<Messages
+				messages={messages}
+				className="-mr-2 pr-4 pb-12 md:-mr-4"
+				showThinking={showThinking}
+			/>
 			<form
 				id="chat-form"
 				onSubmit={(event) => {

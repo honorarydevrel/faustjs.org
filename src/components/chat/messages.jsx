@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import ChatLink from "./chat-link";
 import { classNames } from "@/utils/strings";
 
-export default function Messages({ messages, className }) {
+export default function Messages({ messages, className, showThinking = true }) {
 	const messagesEndReference = useRef(null);
 	useEffect(() => {
 		messagesEndReference.current?.scrollIntoView({ behavior: "smooth" });
@@ -22,6 +22,8 @@ export default function Messages({ messages, className }) {
 			{messages.map((message) => {
 				const isAssistant = message.role === "assistant";
 				const isLoading = message.content === "";
+				const hasThinking = message.thinking && message.thinking.length > 0;
+
 				return (
 					<div
 						key={message.id}
@@ -39,14 +41,38 @@ export default function Messages({ messages, className }) {
 								<div className="animate-think h-2 w-2 rounded-full bg-gray-200" />
 							</div>
 						) : (
-							<Markdown
-								remarkPlugins={[remarkGfm]}
-								components={{
-									a: ChatLink,
-								}}
-							>
-								{message.content}
-							</Markdown>
+							<>
+								{hasThinking && showThinking && (
+									<div className="thinking-section mb-3 rounded-lg border-l-4 border-purple-400 bg-purple-800/50 p-3">
+										<div className="mb-2 text-sm font-medium text-purple-200">
+											🤔 Thinking...
+										</div>
+										{message.thinking.map((thought, index) => (
+											<div
+												key={index}
+												className="thinking-thought mb-2 text-sm text-purple-100 last:mb-0"
+											>
+												<Markdown
+													remarkPlugins={[remarkGfm]}
+													components={{
+														a: ChatLink,
+													}}
+												>
+													{thought}
+												</Markdown>
+											</div>
+										))}
+									</div>
+								)}
+								<Markdown
+									remarkPlugins={[remarkGfm]}
+									components={{
+										a: ChatLink,
+									}}
+								>
+									{message.content}
+								</Markdown>
+							</>
 						)}
 					</div>
 				);

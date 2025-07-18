@@ -25,3 +25,32 @@
 	/* Optional: A slight text shadow can make it pop on some backgrounds */
 	/* text-shadow: 2px 2px 4px rgba(0,0,0,0.1); */
 }
+
+/* Thinking section styles */
+.thinking-section {
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.thinking-thought {
+	position: relative;
+	padding-left: 1rem;
+}
+
+.thinking-thought::before {
+	content: "💭";
+	position: absolute;
+	left: -0.5rem;
+	top: 0;
+	font-size: 0.875rem;
+}

@@ -17,6 +17,17 @@ $ pnpm install		# Install project dependencies via `pnpm`
 $ pnpm dev 			# Start dev server; See `scripts` in `package.json` for more
 ```
 
+## AI Chat Features
+
+The website includes an AI-powered chat assistant powered by Google's Gemini 2.5 Flash model. The chat features include:
+
+- **Thinking Steps**: The AI can now show its reasoning process before providing a final response
+- **Toggle Thinking**: Users can show/hide thinking steps using the eye icon in the chat dialog
+- **Smart Search**: The AI can search through Faust.js documentation to provide accurate answers
+- **Real-time Streaming**: Responses are streamed in real-time for a better user experience
+
+The thinking feature helps users understand how the AI arrives at its conclusions, making the responses more transparent and educational.
+
 ## PNPM Package Manager
 
 ```bash

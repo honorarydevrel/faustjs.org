@@ -1,12 +1,13 @@
 import { useChat } from "ai/react";
-import { useEffect } from "react";
-import { HiXCircle } from "react-icons/hi2";
+import { useEffect, useState } from "react";
+import { HiXCircle, HiEye, HiEyeSlash } from "react-icons/hi2";
 import { useChatDialog } from "./state";
 import Chat from "@/components/chat/chat";
 import "./chat.css";
 
 export default function ChatDialog() {
 	const { dialog } = useChatDialog();
+	const [showThinking, setShowThinking] = useState(true);
 	const {
 		messages,
 		input,
@@ -38,19 +39,36 @@ export default function ChatDialog() {
 			// eslint-disable-next-line react/no-unknown-property
 			closedby="any"
 		>
-			<button
-				formMethod="dialog"
-				type="button"
-				form="chat-form"
-				aria-label="Close chat"
-				className="absolute -top-2 -right-2 text-gray-400 hover:text-gray-300"
-				onClick={() => {
-					dialog.current?.close();
-				}}
-			>
-				<span className="sr-only">Close chat</span>
-				<HiXCircle className="h-6 w-6 cursor-pointer text-gray-200 hover:text-red-500" />
-			</button>
+			<div className="mb-4 flex items-center justify-between">
+				<button
+					type="button"
+					aria-label={
+						showThinking ? "Hide thinking steps" : "Show thinking steps"
+					}
+					className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-gray-100"
+					onClick={() => setShowThinking(!showThinking)}
+				>
+					{showThinking ? (
+						<HiEyeSlash className="h-4 w-4" />
+					) : (
+						<HiEye className="h-4 w-4" />
+					)}
+					<span className="hidden sm:inline">Thinking</span>
+				</button>
+				<button
+					formMethod="dialog"
+					type="button"
+					form="chat-form"
+					aria-label="Close chat"
+					className="text-gray-400 hover:text-gray-300"
+					onClick={() => {
+						dialog.current?.close();
+					}}
+				>
+					<span className="sr-only">Close chat</span>
+					<HiXCircle className="h-6 w-6 cursor-pointer text-gray-200 hover:text-red-500" />
+				</button>
+			</div>
 			<section>
 				<Chat
 					input={input}
@@ -58,6 +76,7 @@ export default function ChatDialog() {
 					handleMessageSubmit={handleSubmit}
 					messages={messages}
 					status={status}
+					showThinking={showThinking}
 				/>
 			</section>
 		</dialog>
