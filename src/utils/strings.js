@@ -1,26 +1,22 @@
-function append(accumulator, argument) {
-	return accumulator + argument + " ";
-}
-
 export function classNames(...arguments_) {
-	let classes = "";
+	const classes = [];
 
 	for (const argument of arguments_) {
 		if (!argument) continue;
 		const argumentType = typeof argument;
 		if (argumentType === "string" || argumentType === "number") {
-			classes = append(classes, argument);
+			classes.push(argument);
 		} else if (Array.isArray(argument) && argument.length > 0) {
 			const inner = classNames(...argument);
-			if (inner) classes = append(classes, inner);
+			if (inner) classes.push(inner);
 		} else if (argumentType === "object") {
 			for (const [key, value] of Object.entries(argument)) {
-				if (value) classes = append(classes, key);
+				if (value) classes.push(key);
 			}
 		}
 	}
 
-	return classes;
+	return classes.join(" ");
 }
 
 export function normalizeHref(path) {

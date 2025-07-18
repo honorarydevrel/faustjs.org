@@ -75,6 +75,9 @@ export default function SearchBar() {
 	useEffect(() => {
 		return () => {
 			debouncedFetchItems.cancel();
+			// Clear any pending state updates
+			setItems([]);
+			setIsLoading(false);
 		};
 	}, [debouncedFetchItems]);
 

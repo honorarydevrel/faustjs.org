@@ -134,12 +134,19 @@ export function getDocUriFromPath(ghPath) {
  * @returns {Promise<string>}
  */
 export async function getRawDocContent(url) {
+	// Validate URL parameter
+	if (!url || typeof url !== "string") {
+		throw new Error("Invalid URL parameter provided");
+	}
+
 	const resp = await fetch(url);
 
 	if (!resp.ok) {
 		if (resp.status >= 400 && resp.status < 500) {
-			// eslint-disable-next-line no-throw-literal
-			throw { notFound: true };
+			const error = new Error(`Document not found: ${resp.statusText}`);
+			error.notFound = true;
+			error.status = resp.status;
+			throw error;
 		}
 
 		throw new Error(resp.statusText);

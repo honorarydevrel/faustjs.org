@@ -55,14 +55,18 @@ export function normalizeSmartSearchResponse(results) {
 		const { id, data } = result;
 		switch (data.post_type) {
 			case "mdx_doc": {
-				const path = data.post_url ? cleanPath(data.post_url) : "/";
+				// Safely handle potentially undefined post_url
+				const path =
+					data.post_url && typeof data.post_url === "string"
+						? cleanPath(data.post_url)
+						: "/";
 
 				return {
 					id,
-					title: data.post_title,
+					title: data.post_title || "Untitled",
 					href: path,
 					type: data.post_type,
-					content: data.post_content,
+					content: data.post_content || "",
 				};
 			}
 

@@ -79,9 +79,8 @@ export async function POST(req) {
 			},
 			onError: (error) => {
 				console.error("Error during streaming:", error);
-				return new Response(ReasonPhrases.INTERNAL_SERVER_ERROR, {
-					status: StatusCodes.INTERNAL_SERVER_ERROR,
-				});
+				// Don't return a response here - let the main try-catch handle it
+				throw error;
 			},
 			onToolCall: async (toolCall) => {
 				console.log("Tool call initiated:", toolCall);
