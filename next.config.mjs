@@ -65,44 +65,18 @@ const nextConfig = {
 					xssProtection: false,
 				}),
 			},
-			// Fix ISR Cache-Control headers for blog pages
+			// Fix ISR cache headers
 			{
 				source: "/blog/:slug*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, s-maxage=3600, stale-while-revalidate=86400",
-					},
-				],
+				headers: [{ key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" }],
 			},
 			{
 				source: "/blog/",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, s-maxage=60, stale-while-revalidate=300",
-					},
-				],
+				headers: [{ key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=300" }],
 			},
-			// Fix ISR Cache-Control headers for docs pages
 			{
 				source: "/docs/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, s-maxage=600, stale-while-revalidate=3600",
-					},
-				],
-			},
-			// Ensure static assets have proper caching
-			{
-				source: "/_next/static/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable",
-					},
-				],
+				headers: [{ key: "Cache-Control", value: "public, s-maxage=600, stale-while-revalidate=3600" }],
 			},
 		];
 	},
