@@ -61,9 +61,7 @@ const nextConfig = {
 		return [
 			{
 				source: "/:path*",
-				headers: createSecureHeaders({
-					xssProtection: false,
-				}),
+				headers: createSecureHeaders(),
 			},
 		];
 	},
