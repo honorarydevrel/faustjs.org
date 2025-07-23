@@ -103,7 +103,7 @@ SinglePost.variables = ({ params }) => ({ slug: params.slug });
 export async function getStaticProps(context) {
 	const props = await getNextStaticProps(context, {
 		Page: SinglePost,
-		revalidate: 3_600,
+		revalidate: 3600, // 1 hour - consistent with cache headers
 	});
 
 	if (!props?.props?.data?.post) {
